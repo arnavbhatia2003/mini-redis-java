@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cachet · Objects in twenty finishes</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23101114'/%3E%3Crect x='4' y='4' width='8' height='8' fill='%23f07a1a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/shop.css">
+</head>
+<body data-page="home">
+<header id="site-header"></header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="mono" style="color:var(--ink-3)">Catalogue 2026</span>
+        <h1 class="display"><span>Ten objects.</span><span class="thin">Twenty finishes.</span><span>Pick yours.</span></h1>
+        <p class="lede">A backpack, a notebook, a lamp: the things on your desk and in your bag, each made in twenty finishes. Every square on the right is one of them.</p>
+        <div class="hero-actions">
+          <a class="btn btn-solid" href="/products">Shop all 200</a>
+          <a class="btn" href="#bestsellers">See what sells</a>
+        </div>
+      </div>
+      <div>
+        <div class="matrix-head mono"><span>The whole catalogue</span><span>20 finishes across</span></div>
+        <div class="matrix" id="matrix" aria-label="All 200 products"></div>
+        <div class="matrix-foot mono"><span>10 objects down</span><span>Point at a square</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="strip" aria-label="Shop totals"><div class="wrap" id="numbers">
+    <div class="cell"><div class="figure">&nbsp;</div><div class="label">orders placed</div></div>
+    <div class="cell"><div class="figure">&nbsp;</div><div class="label">pieces sold</div></div>
+    <div class="cell"><div class="figure">&nbsp;</div><div class="label">revenue so far</div></div>
+    <div class="cell"><div class="figure">&nbsp;</div><div class="label">products, all in stock</div></div>
+  </div></section>
+
+  <section class="section"><div class="wrap">
+    <div class="section-head">
+      <h2 class="display">Shop by object</h2>
+      <a class="more" href="/products">All products</a>
+    </div>
+    <div class="cat-grid" id="categories"></div>
+  </div></section>
+
+  <section class="section" id="bestsellers"><div class="wrap">
+    <div class="section-head">
+      <h2 class="display">Bestsellers</h2>
+      <p>The eight products that have earned the most, ranked from every order ever placed.</p>
+    </div>
+    <div class="grid" id="bestseller-grid"></div>
+  </div></section>
+
+  <section class="band" id="how"><div class="wrap">
+    <div>
+      <span class="mono" style="color:#c9cbd3">Behind the pages</span>
+      <h2 class="display">Counted fresh, served from memory</h2>
+      <p>Each page here adds up 400,000 orders before it can show you a single number. Doing that for every visitor is slow, so the answer is kept for 30 seconds in a small Redis-like server and reused.</p>
+      <a class="btn" href="/analytics" target="cachet-analytics">Watch it live in Analytics</a>
+    </div>
+    <div class="steps">
+      <div><span class="tag"><i style="background:var(--miss)"></i>MISS</span><span>Nobody asked for this page lately. The server reads every order, answers, and stores the answer.</span></div>
+      <div><span class="tag"><i style="background:var(--hit)"></i>HIT</span><span>The stored answer is still fresh. It comes straight back, with no file read at all.</span></div>
+      <div><span class="tag"><i style="background:var(--off)"></i>OFF</span><span>You switched the cache off in the top bar. Every page reads every order again.</span></div>
+      <div><span class="tag"><i style="background:var(--down)"></i>DOWN</span><span>The cache server is not running. The shop does the slow work and still answers.</span></div>
+    </div>
+  </div></section>
+</main>
+
+<footer id="site-footer"></footer>
+<script src="/shop.js"></script>
+</body>
+</html>

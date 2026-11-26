@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dashboard">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cachet Analytics</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%232a78d6'/%3E%3Cpath d='M3 11l3-4 3 2 4-5' stroke='white' stroke-width='1.6' fill='none'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/analytics.css">
+</head>
+<body>
+
+<!-- shapes the "Sketch" theme uses: a wobble for lines and slanted pencil fills -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.2"/>
+    </filter>
+    <pattern id="hatch-hit" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="#2a78d6" stroke-width="2.6"/></pattern>
+    <pattern id="hatch-miss" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(135)"><rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="#eb6834" stroke-width="2.6"/></pattern>
+    <pattern id="hatch-off" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="#fff"/><line x1="0" y1="0" x2="0" y2="7" stroke="#1baf7a" stroke-width="3.4"/></pattern>
+    <pattern id="hatch-down" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(135)"><rect width="5" height="5" fill="#fff"/><line x1="0" y1="0" x2="0" y2="5" stroke="#d03b3b" stroke-width="2.4"/></pattern>
+  </defs>
+</svg>
+
+<header class="appbar">
+  <a class="brand" href="/" target="cachet-shop"><span class="brand-mark"></span>Cachet</a>
+  <span class="crumb">Analytics <span aria-hidden="true">/</span> <b>Traffic and cache</b></span>
+  <span class="grow"></span>
+  <span class="live" id="live"><i></i><span id="live-text">Connecting</span></span>
+  <div class="seg" role="group" aria-label="Theme">
+    <button type="button" data-theme-choice="dashboard" aria-pressed="true">Dashboard</button>
+    <button type="button" data-theme-choice="sketch" aria-pressed="false">Sketch</button>
+  </div>
+  <a class="btn" href="/" target="cachet-shop">Open the shop</a>
+</header>
+
+<div class="layout">
+  <nav class="side" aria-label="Sections">
+    <span class="side-title">cachet.shop (local)</span>
+    <a href="#overview">Overview</a>
+    <a href="#traffic">Requests</a>
+    <a href="#speed">Server time</a>
+    <a href="#pages">Pages</a>
+    <a href="#benchmark">Benchmark</a>
+    <a href="#log">Request log</a>
+    <p class="side-note">Everything here is read from the web server's own log of the requests it answered: clicks in the shop, the terminal benchmark, and the benchmark on this page.</p>
+  </nav>
+
+  <main class="main">
+    <div class="filters" id="overview">
+      <div class="seg" role="group" aria-label="Time range" id="range">
+        <button type="button" data-range="60" aria-pressed="true">Last minute</button>
+        <button type="button" data-range="300" aria-pressed="false">5 minutes</button>
+        <button type="button" data-range="900" aria-pressed="false">15 minutes</button>
+        <button type="button" data-range="1800" aria-pressed="false">30 minutes</button>
+        <button type="button" data-range="0" aria-pressed="false">Since start</button>
+      </div>
+      <button type="button" class="btn" id="pause">Pause</button>
+      <button type="button" class="btn" id="clear-cache">Clear cache</button>
+      <span class="filters-note" id="range-note"></span>
+    </div>
+
+    <section class="tiles" aria-label="Summary">
+      <div class="tile"><div class="tile-label">Requests</div><div class="tile-value" id="t-requests">0</div><div class="tile-sub" id="t-requests-sub">&nbsp;</div><div class="spark" id="s-requests"></div></div>
+      <div class="tile"><div class="tile-label">Served from cache</div><div class="tile-value" id="t-ratio">0%</div><div class="tile-sub" id="t-ratio-sub">&nbsp;</div><div class="meter"><div class="meter-fill" id="m-ratio"></div></div></div>
+      <div class="tile"><div class="tile-label">Median server time</div><div class="tile-value" id="t-median">0 ms</div><div class="tile-sub" id="t-median-sub">&nbsp;</div><div class="spark" id="s-median"></div></div>
+      <div class="tile"><div class="tile-label">95th percentile</div><div class="tile-value" id="t-p95">0 ms</div><div class="tile-sub" id="t-p95-sub">&nbsp;</div></div>
+      <div class="tile"><div class="tile-label">Server time saved (estimate)</div><div class="tile-value" id="t-saved">0 s</div><div class="tile-sub" id="t-saved-sub">&nbsp;</div></div>
+    </section>
+
+    <section class="panel" id="traffic">
+      <div class="panel-head">
+        <div><h2>Requests</h2><p>How many requests the shop answered in each slice of time, split by what the cache did.</p></div>
+        <div class="legend" id="legend-requests"></div>
+      </div>
+      <div class="chart" id="chart-requests" style="height:240px"></div>
+    </section>
+
+    <section class="panel" id="speed">
+      <div class="panel-head">
+        <div><h2>Server time per request</h2><p>One dot per request. Height is the time the server needed, in milliseconds.</p></div>
+        <div class="legend" id="legend-speed"></div>
+      </div>
+      <div class="chart" id="chart-speed" style="height:260px"></div>
+    </section>
+
+    <div class="two" id="pages">
+      <section class="panel">
+        <div class="panel-head"><div><h2>By kind of page</h2><p>Median server time with and without a cached answer.</p></div></div>
+        <div class="table-wrap"><table class="table" id="table-kinds">
+          <thead><tr><th>Page</th><th class="num">Requests</th><th>From cache</th><th class="num">Median, not cached</th><th class="num">Median, HIT</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h2>Most requested pages</h2><p>The addresses asked for most often in this range.</p></div></div>
+        <div id="top-pages" class="rank-list"></div>
+      </section>
+    </div>
+
+    <section class="panel bench" id="benchmark">
+      <div class="panel-head">
+        <div><h2>Benchmark</h2><p>Send your own traffic and compare. The pages and their order are picked at random each run, then replayed without and with the cache.</p></div>
+      </div>
+      <form class="bench-form" id="bench-form">
+        <label class="input"><span>Requests per run</span><input id="b-requests" type="number" min="10" max="2000" step="10" value="100"></label>
+        <label class="input"><span>Users at once</span><input id="b-users" type="number" min="1" max="6" value="4"></label>
+        <label class="input"><span>Different product pages</span><input id="b-products" type="number" min="0" max="200" value="20"></label>
+        <label class="input"><span>Compare</span>
+          <select id="b-mode">
+            <option value="compare">Without, then with cache</option>
+            <option value="on">With cache only</option>
+            <option value="off">Without cache only</option>
+          </select>
+        </label>
+        <fieldset class="checks">
+          <legend>Pages to visit</legend>
+          <label><input id="b-home" type="checkbox" checked> Home page</label>
+          <label><input id="b-lists" type="checkbox" checked> Product lists (11)</label>
+          <label><input id="b-clear" type="checkbox" checked> Clear the cache first</label>
+        </fieldset>
+        <div class="bench-actions">
+          <button type="submit" class="btn primary" id="b-run">Run benchmark</button>
+          <button type="button" class="btn" id="b-stop" disabled>Stop</button>
+        </div>
+      </form>
+      <div class="progress" id="b-progress" hidden><div class="progress-fill" id="b-progress-fill"></div></div>
+      <p class="bench-status" id="b-status">No run yet. Browsers allow at most 6 requests to one site at a time, so 6 users is the limit here; the terminal benchmark goes to 8.</p>
+
+      <div class="bench-result" id="b-result" hidden>
+        <div class="bench-headline">
+          <div class="hero-number" id="b-headline"></div>
+          <div class="hero-caption" id="b-caption"></div>
+        </div>
+        <div>
+          <div class="legend" id="legend-bench"></div>
+          <div class="chart" id="chart-bench"></div>
+        </div>
+        <div class="table-wrap"><table class="table" id="table-bench">
+          <thead><tr><th>Measure</th><th class="num">Without cache</th><th class="num">With cache</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+
+      <div id="b-history-box" hidden>
+        <h3>Runs in this window</h3>
+        <div class="table-wrap"><table class="table" id="table-history">
+          <thead><tr><th>Started</th><th>Settings</th><th class="num">Avg without</th><th class="num">Avg with</th><th class="num">HIT / MISS</th><th class="num">Times faster</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <section class="panel" id="log">
+      <div class="panel-head"><div><h2>Request log</h2><p>The newest 40 requests in this range, newest first.</p></div></div>
+      <div class="table-wrap"><table class="table" id="table-log">
+        <thead><tr><th>Time</th><th>Page</th><th>Cache</th><th class="num">Server time</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+  </main>
+</div>
+
+<div class="tt" id="tt" hidden></div>
+<script src="/analytics.js"></script>
+</body>
+</html>
